@@ -12,12 +12,15 @@ class WarehouseDataProvider
     /**
      * @return MockInterface|Warehouse
      */
-    public static function getWarehouseMock(): MockInterface
+    public static function getWarehouseMock(bool $isHealthy = true): MockInterface
     {
         return Mockery::mock(Warehouse::class)
             ->shouldReceive('getItemsCount')
             ->getMock()
             ->shouldReceive('reduceQuantity')
+            ->getMock()
+            ->shouldReceive('isHealthy')
+            ->andReturn($isHealthy)
             ->getMock();
     }
 

@@ -9,6 +9,7 @@ use App\Repository\WarehouseRepositoryInterface;
 use App\Service\OrderWarehouseItems;
 use App\Validator\Constraint\ConstraintException;
 use App\ValueObject\OrderEntryItem;
+use Exception;
 use Mockery;
 use PHPUnit\Framework\TestCase;
 
@@ -21,7 +22,7 @@ class OrderWarehouseItemsTest extends TestCase
      * @param array|null $quantityAfterOrder
      * @return void
      * @throws ConstraintException
-     * @throws \Exception
+     * @throws Exception
      * @dataProvider provideData
      */
     public function testShouldOrderWarehouseItems(
@@ -44,6 +45,7 @@ class OrderWarehouseItemsTest extends TestCase
         } else {
             $orderWarehouseItems->execute($orderEntryCollection);
             $warehouseAfterOrder = $orderWarehouseItems->getWarehouseCollection();
+
             for ($i = 0; $i < count($orderEntryData); $i++) {
                 $this->assertEquals(
                     0, $orderEntryCollection->getIterator()->offsetGet($i)->getItems()[0]->getQuantity()
@@ -60,6 +62,19 @@ class OrderWarehouseItemsTest extends TestCase
     public function provideData(): array
     {
         return [
+            'case dead warehouse' => [
+                'warehouse' => self::getDeadWarehouseMock(),
+                'orderEntry' => [
+                    [
+                        'customer' => 'Magdalena Iksińska',
+                        'items' => [
+                            new OrderEntryItem(1, 1),
+                        ],
+                    ],
+                ],
+                'Not enough`t items in warehouses',
+                [],
+            ],
             'case small order' => [
                 'warehouse' => self::getWarehouseDataMock(),
                 'orderEntry' => [
@@ -142,18 +157,34 @@ class OrderWarehouseItemsTest extends TestCase
                 'items' => [
                     new WarehouseItem(1, 'Filtr do kawy', 5),
                 ],
+                'healthy' => true,
             ],
             [
                 'name' => 'Magazyn Katowice',
                 'items' => [
                     new WarehouseItem(1, 'Filtr do kawy', 4),
                 ],
+                'healthy' => true,
             ],
             [
                 'name' => 'Magazyn Gdańsk',
                 'items' => [
                     new WarehouseItem(1, 'Filtr do kawy', 3),
                 ],
+                'healthy' => true,
+            ],
+        ];
+    }
+
+    private static function getDeadWarehouseMock(): array
+    {
+        return [
+            [
+                'name' => 'Magazyn z którego nie mozna zamówić',
+                'items' => [
+                    new OrderEntryItem(1, 5),
+                ],
+                'healthy' => false,
             ],
         ];
     }

@@ -25,12 +25,14 @@ class WarehouseNegotiatorTest extends TestCase
     {
         // when
         $warehouseMock = WarehouseDataProvider::getWarehouseMock();
+        $warehouseDeadMock =WarehouseDataProvider::getWarehouseMock(false);
 
         /** @var WarehouseRepositoryInterface $repositoryMock */
         $repositoryMock = $this->getRepositoryMock(WarehouseDataProvider::getWarehousesCollectionMock([
             $warehouseMock,
             $warehouseMock,
             $warehouseMock,
+            $warehouseDeadMock
         ]));
 
         $orderEntryItemMock = OrderEntryDataProvider::getOrderEntryItemMock()

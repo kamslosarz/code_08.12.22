@@ -31,12 +31,14 @@ final class WarehouseNegotiator
         /** @var Warehouse $warehouse */
         foreach ($this->warehouseRepository->all() as $warehouse) {
             /** @var OrderEntryItem $orderEntryItem */
-            foreach ($itemsToOrderCollection as $orderEntryItem) {
-                if ($orderEntryItem->getQuantity()) {
-                    $warehouseCollection->add($warehouse);
-                    $itemsInWarehouseCount = $warehouse->getItemsCount($orderEntryItem->getId());
-                    $warehouse->reduceQuantity($orderEntryItem->getId(), $orderEntryItem->getQuantity());
-                    $orderEntryItem->reduceQuantity($itemsInWarehouseCount);
+            if($warehouse->isHealthy()){
+                foreach ($itemsToOrderCollection as $orderEntryItem) {
+                    if ($orderEntryItem->getQuantity()) {
+                        $warehouseCollection->add($warehouse);
+                        $itemsInWarehouseCount = $warehouse->getItemsCount($orderEntryItem->getId());
+                        $warehouse->reduceQuantity($orderEntryItem->getId(), $orderEntryItem->getQuantity());
+                        $orderEntryItem->reduceQuantity($itemsInWarehouseCount);
+                    }
                 }
             }
         }
